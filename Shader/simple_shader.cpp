@@ -38,6 +38,7 @@ GLuint gBrightnessLocation;
 GLuint gContrastLocation;
 GLuint gWhitePoint;
 GLuint gBlackPoint;
+GLuint gColor;
 
 const char* pVSFileName = "shader.vs";
 const char* pFSFileName = "whiteBlackPtShader.fs";
@@ -69,6 +70,7 @@ static void renderContrast (float Scale) {
 static void renderWhitepoint() {
     // whitepoint
     // min: 0, max : 255
+    // everything whiter than this will become completely white
     float whitepointValue = 235;
     fprintf(stdout, "whitepoint value %f\n", whitepointValue);
     glUniform1f(gWhitePoint, whitepointValue);
@@ -77,6 +79,7 @@ static void renderWhitepoint() {
 static void renderBlackPoint() {
     // black point
     // min: 0, max: 255
+    // everything darker than this value will become completely black
     float blackpointValue = 16;
     fprintf(stdout, "blackpoint value %f\n", blackpointValue);
     glUniform1f(gBlackPoint, blackpointValue);
@@ -104,15 +107,15 @@ static void RenderSceneCB()
 
     Matrix4f World;
 
-    // World.m[0][0] = sinf(Scale) ; World.m[0][1] = 0.0f       ; World.m[0][2] = 0.0f;        World.m[0][3] = 0.0f;
-    // World.m[1][0] = 0.0f        ; World.m[1][1] = sinf(Scale); World.m[1][2] = 0.0f;        World.m[1][3] = 0.0f;
-    // World.m[2][0] = 0.0f;       ; World.m[2][1] = 0.0f;      ; World.m[2][2] = sinf(Scale); World.m[2][3] = 0.0f;
-    // World.m[3][0] = 0.0f;       ; World.m[3][1] = 0.0f;      ; World.m[3][2] = 0.0f;        World.m[3][3] = 1.0f;
-
-    World.m[0][0] = 1.0f        ; World.m[0][1] = 0.0f       ; World.m[0][2] = 0.0f;        World.m[0][3] = 0.0f;
-    World.m[1][0] = 0.0f        ; World.m[1][1] = 1.0f;        World.m[1][2] = 0.0f;        World.m[1][3] = 0.0f;
-    World.m[2][0] = 0.0f;       ; World.m[2][1] = 0.0f;      ; World.m[2][2] = 1.0f;        World.m[2][3] = 0.0f;
+    World.m[0][0] = sinf(Scale) ; World.m[0][1] = 0.0f       ; World.m[0][2] = 0.0f;        World.m[0][3] = 0.0f;
+    World.m[1][0] = 0.0f        ; World.m[1][1] = sinf(Scale); World.m[1][2] = 0.0f;        World.m[1][3] = 0.0f;
+    World.m[2][0] = 0.0f;       ; World.m[2][1] = 0.0f;      ; World.m[2][2] = sinf(Scale); World.m[2][3] = 0.0f;
     World.m[3][0] = 0.0f;       ; World.m[3][1] = 0.0f;      ; World.m[3][2] = 0.0f;        World.m[3][3] = 1.0f;
+
+    // World.m[0][0] = 1.0f        ; World.m[0][1] = 0.0f       ; World.m[0][2] = 0.0f;        World.m[0][3] = 0.0f;
+    // World.m[1][0] = 0.0f        ; World.m[1][1] = 1.0f;        World.m[1][2] = 0.0f;        World.m[1][3] = 0.0f;
+    // World.m[2][0] = 0.0f;       ; World.m[2][1] = 0.0f;      ; World.m[2][2] = 1.0f;        World.m[2][3] = 0.0f;
+    // World.m[3][0] = 0.0f;       ; World.m[3][1] = 0.0f;      ; World.m[3][2] = 0.0f;        World.m[3][3] = 1.0f;
 
     float sScale = sinf(Scale);
 
@@ -184,7 +187,7 @@ static void compileElements(GLuint ShaderProgram)
 
     // add color
     gColorLocation = glGetUniformLocation(ShaderProgram, "gColor");
-    assert(gColorLocation != 0xFFFFFFFF);
+    // assert(gColorLocation != 0xFFFFFFFF);
 
     // add brightness
     gBrightnessLocation = glGetUniformLocation(ShaderProgram, "brightness");

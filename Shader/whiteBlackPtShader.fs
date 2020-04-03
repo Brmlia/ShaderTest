@@ -1,5 +1,7 @@
 #version 330
 
+in vec4 Color;
+
 out vec4 FragColor;
 
 // uniform sampler2D image;
@@ -11,6 +13,7 @@ uniform vec4 gColor;
 
 void main() {
   FragColor = gColor;
+  FragColor = Color;
   // FragColor = texture2D(image, vUv);
 
   float black_point = gBlackPoint / 255.0;
