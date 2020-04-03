@@ -18,8 +18,11 @@
     Tutorial 09 - Interpolation
 */
 
+// #define STB_IMAGE_IMPLEMENTATION
+
 #include <stdio.h>
 #include <string.h>
+// #include <stb_image.h>
 
 #include <math.h>
 #include <GL/glew.h>
@@ -33,10 +36,63 @@ GLuint gWorldLocation;
 GLuint gColorLocation;
 GLuint gBrightnessLocation;
 GLuint gContrastLocation;
+GLuint gWhitePoint;
+GLuint gBlackPoint;
 
 const char* pVSFileName = "shader.vs";
-const char* pFSFileName = "shader.fs";
+const char* pFSFileName = "whiteBlackPtShader.fs";
+// const char* pFSFileName = "shader.fs";
 
+// todo: Add a texture / image to test white and black point with
+
+static void renderColor() {
+    float greenValue = 1.0f;
+    glUniform4f(gColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+}
+
+static void renderBrightness(float Scale) {
+    // brightness
+    // float brightnessValue = 1.0f;
+    float brightnessValue = Scale*10;
+    fprintf(stdout, "brightness value %f\n", brightnessValue);
+    glUniform1f(gBrightnessLocation, brightnessValue);
+}
+
+static void renderContrast (float Scale) {
+    // contrast
+    // float contrastValue = 10.0f;
+    float contrastValue = Scale*100;
+    fprintf(stdout, "contrast value %f\n", contrastValue);
+    glUniform1f(gContrastLocation, contrastValue);
+}
+
+static void renderWhitepoint() {
+    // whitepoint
+    // min: 0, max : 255
+    float whitepointValue = 235;
+    fprintf(stdout, "whitepoint value %f\n", whitepointValue);
+    glUniform1f(gWhitePoint, whitepointValue);
+}
+
+static void renderBlackPoint() {
+    // black point
+    // min: 0, max: 255
+    float blackpointValue = 16;
+    fprintf(stdout, "blackpoint value %f\n", blackpointValue);
+    glUniform1f(gBlackPoint, blackpointValue);
+}
+
+static void renderPicture() {
+}
+
+static void render(float sScale) {
+    renderPicture();
+    renderColor();
+    renderBrightness(sScale);
+    renderContrast(sScale);
+    renderWhitepoint();
+    renderBlackPoint();
+}
 
 static void RenderSceneCB()
 {
@@ -58,23 +114,9 @@ static void RenderSceneCB()
     World.m[2][0] = 0.0f;       ; World.m[2][1] = 0.0f;      ; World.m[2][2] = 1.0f;        World.m[2][3] = 0.0f;
     World.m[3][0] = 0.0f;       ; World.m[3][1] = 0.0f;      ; World.m[3][2] = 0.0f;        World.m[3][3] = 1.0f;
 
-    // time
-    // float greenValue = sinf(Scale);
-    float greenValue = 1.0f;
-    glUniform4f(gColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
-    // end time
+    float sScale = sinf(Scale);
 
-    // brightness
-    // float brightnessValue = 1.0f;
-    float brightnessValue = sinf(Scale)*10;
-    fprintf(stdout, "brightness value %f\n", brightnessValue);
-    glUniform1f(gBrightnessLocation, brightnessValue);
-
-    // contrast
-    // float contrastValue = 10.0f;
-    float contrastValue = sinf(Scale)*100;
-    fprintf(stdout, "contrast value %f\n", contrastValue);
-    glUniform1f(gContrastLocation, contrastValue);
+    render(sScale);
 
     glUniformMatrix4fv(gWorldLocation, 1, GL_TRUE, &World.m[0][0]);
 
@@ -135,6 +177,36 @@ static void AddShader(GLuint ShaderProgram, const char* pShaderText, GLenum Shad
     glAttachShader(ShaderProgram, ShaderObj);
 }
 
+static void compileElements(GLuint ShaderProgram)
+{
+    gWorldLocation = glGetUniformLocation(ShaderProgram, "gWorld");
+    assert(gWorldLocation != 0xFFFFFFFF);
+
+    // add color
+    gColorLocation = glGetUniformLocation(ShaderProgram, "gColor");
+    assert(gColorLocation != 0xFFFFFFFF);
+
+    // add brightness
+    gBrightnessLocation = glGetUniformLocation(ShaderProgram, "brightness");
+    // assert(gBrightnessLocation != 0xFFFFFFFF);
+
+    // add contrast
+    gContrastLocation = glGetUniformLocation(ShaderProgram, "contrast");
+    // assert(gContrastLocation != 0xFFFFFFFF);
+
+    // add white point
+    gWhitePoint = glGetUniformLocation(ShaderProgram, "gWhitePoint");
+    assert(gWhitePoint != 0xFFFFFFFF);
+
+    // add black point
+    gBlackPoint = glGetUniformLocation(ShaderProgram, "gBlackPoint");
+    assert(gBlackPoint != 0xFFFFFFFF);
+}
+
+static void compileTextures()
+{
+}
+
 static void CompileShaders()
 {
     GLuint ShaderProgram = glCreateProgram();
@@ -177,22 +249,8 @@ static void CompileShaders()
     }
 
     glUseProgram(ShaderProgram);
-
-    gWorldLocation = glGetUniformLocation(ShaderProgram, "gWorld");
-    // assert(gWorldLocation != 0xFFFFFFFF);
-
-    // add color
-    gColorLocation = glGetUniformLocation(ShaderProgram, "gColor");
-    // assert(gColorLocation != 0xFFFFFFFF);
-
-    // add brightness
-    gBrightnessLocation = glGetUniformLocation(ShaderProgram, "brightness");
-    // assert(gBrightnessLocation != 0xFFFFFFFF);
-
-    // add brightness
-    gContrastLocation = glGetUniformLocation(ShaderProgram, "contrast");
-    // assert(gContrastLocation != 0xFFFFFFFF);
-
+    compileElements(ShaderProgram);
+    compileTextures();
 }
 
 int main(int argc, char** argv)
