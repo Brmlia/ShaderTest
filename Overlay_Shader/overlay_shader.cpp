@@ -68,7 +68,7 @@ static void renderColor() {
     // red color: 1.0f, 0.0f, 0.0f, 1.0f
     // blue color: 0.0f, 0.0f, 1.0f, 1.0f
     // white color: 0.0f, 0.0f, 0.0f, 1.0f
-    glUniform4f(gColorLocation, 0.0f, 0.0f, 1.0f, 1.0f);
+    glUniform4f(gColorLocation, 0.0f, 0.0f, 1.0f, 0.2f);
 }
 
 static void renderBrightness(float Scale) {
@@ -108,8 +108,8 @@ static void renderBlackPoint() {
 static void renderPicture() {
 }
 
-static void renderOverlay() {
-    glUniform4f(gOverlay, 1.0f, 0.0f, 0.0f, 1.0f);
+static void renderOverlay(float Scale) {
+    glUniform4f(gOverlay, 1.0f, 0.0f, 0.0f, Scale);
 }
 
 static void render() {
@@ -124,7 +124,7 @@ static void render() {
     // renderContrast(sScale);
     // renderWhitepoint();
     // renderBlackPoint();
-    renderOverlay();
+    renderOverlay(Scale);
 }
 
 static void RenderSceneCB()
@@ -132,6 +132,9 @@ static void RenderSceneCB()
     glClear(GL_COLOR_BUFFER_BIT);
 
     render();
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
