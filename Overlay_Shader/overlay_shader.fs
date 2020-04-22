@@ -1,23 +1,22 @@
 #version 330
 
-in vec4 Color;
-
 out vec4 FragColor;
 
-// uniform sampler2D image;
-uniform float gBlackPoint;
-uniform float gWhitePoint;
-varying vec2 vUv;
-
 uniform vec4 gColor;
+uniform vec4 gOverlay;
 
-void main() {
-  FragColor = gColor;
-  FragColor = Color;
-  // FragColor = texture2D(image, vUv);
+vec4 toGrayscale(in vec4 color) {
+  float average = (color.r + color.g + color.b) / 3.0;
+  return vec4(average, average, average, 1.0);
+}
 
-  float black_point = gBlackPoint / 255.0;
-  float white_point = gWhitePoint == gBlackPoint ? (255.0 / 0.00025) : (255.0 / (gWhitePoint - gBlackPoint));
+vec4 colorize(in vec4 grayscale, in vec4 color)
+{
+    return (grayscale * color);
+}
 
-  FragColor.rgb = FragColor.rgb * white_point - (black_point * white_point);
+void main() {;
+  vec4 grayscale = toGrayscale(gColor);
+  vec4 colorizedOutput = colorize(grayscale, gOverlay);
+  FragColor = colorizedOutput;
 }
